@@ -21,6 +21,7 @@ class BitbucketProvider implements GitProvider, LoggerAwareInterface, Credential
     use ExecWithRedactionTrait;
 
     const SERVICE_NAME = 'bitbucket';
+    const BITBUCKET_URL = 'https://bitbucket.org';
     const BITBUCKET_USER = 'BITBUCKET_USER';
     const BITBUCKET_PASS = 'BITBUCKET_PASS';
     const BITBUCKET_AUTH = 'BITBUCKET_AUTH';
@@ -123,6 +124,9 @@ class BitbucketProvider implements GitProvider, LoggerAwareInterface, Credential
         );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function createRepository($local_site_path, $target, $github_org = '')
     {
         // Username for Bitbucket API is either provider $github_org
@@ -150,13 +154,21 @@ class BitbucketProvider implements GitProvider, LoggerAwareInterface, Credential
     }
 
     /**
-     * Push the repository at the provided working directory back to GitHub.
+     * @inheritdoc
      */
     public function pushRepository($dir, $target_project)
     {
         $bitbucket_token = $this->token();
         $remote_url = "https://$bitbucket_token@bitbucket.org/${target_project}.git";
         $this->execGit($dir, 'push --progress {remote} master', ['remote' => $remote_url], ['remote' => $target_project]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function projectURL($target_project)
+    {
+        return self::BITBUCKET_URL . '/' . $target_project;
     }
 
     private function bitbucketAPIClient() {

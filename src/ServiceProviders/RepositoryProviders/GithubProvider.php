@@ -19,6 +19,7 @@ class GithubProvider implements GitProvider, LoggerAwareInterface, CredentialCli
     use ExecWithRedactionTrait;
 
     const SERVICE_NAME = 'github';
+    const GITHUB_URL = 'https://github.com';
     const GITHUB_TOKEN = 'GITHUB_TOKEN';
 
     protected $repositoryEnvironment;
@@ -83,6 +84,9 @@ class GithubProvider implements GitProvider, LoggerAwareInterface, CredentialCli
         $this->setToken($credentials_provider->fetch(self::GITHUB_TOKEN));
     }
 
+    /**
+     * @inheritdoc
+     */
     public function createRepository($local_site_path, $target, $github_org = '')
     {
         // We need a different URL here if $github_org is an org; if no
@@ -116,11 +120,19 @@ class GithubProvider implements GitProvider, LoggerAwareInterface, CredentialCli
     }
 
     /**
-     * Push the repository at the provided working directory back to GitHub.
+     * @inheritdoc
      */
     public function pushRepository($dir, $target_project)
     {
         $this->execGit($dir, 'push --progress https://{token}:x-oauth-basic@github.com/{target}.git master', ['token' => $this->token(), 'target' => $target_project], ['token']);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function projectURL($target_project)
+    {
+        return self::GITHUB_URL . '/' . $target_project;
     }
 
     protected function gitHubAPI($uri, $data = [])
